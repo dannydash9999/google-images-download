@@ -1,17 +1,28 @@
-# Usa una imagen base oficial de Python
 FROM python:3.10-slim
 
-# Establece el directorio de trabajo
+# Evita interacción al instalar paquetes
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Instala herramientas del sistema necesarias
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libffi-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    libjpeg-dev \
+    libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crea y usa un directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos del proyecto al contenedor
-COPY . /app
+# Copia el contenido del repo
+COPY . .
 
-# Instala las dependencias
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Instala la herramienta como ejecutable
+# Instala las dependencias desde setup.py
+RUN pip install --upgrade pip setuptools wheel
 RUN python setup.py install
 
-# Comando por defecto 
+# Ejecuta el script con este comando
 ENTRYPOINT ["googleimagesdownload"]
